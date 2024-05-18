@@ -1,0 +1,799 @@
+---
+title: "Preliminary Analysis"
+author: "Edward, Sanjae, and Michael"
+date: "4/12/2024"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+```{r load_package,message=FALSE,warning=FALSE}
+library(readr)
+library(dplyr)
+library(tidyverse)
+library(reticulate)
+library(knitr)
+```
+
+
+```{python import-packages}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.pipeline import Pipeline
+from sklearn.compose import make_column_transformer, ColumnTransformer
+from sklearn.model_selection import train_test_split, KFold, GridSearchCV, StratifiedShuffleSplit
+from sklearn.metrics import mean_squared_error, roc_auc_score, accuracy_score
+from sklearn.linear_model import ElasticNetCV, LogisticRegression, LinearRegression
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier, plot_tree
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier, GradientBoostingRegressor, GradientBoostingClassifier, BaggingRegressor, BaggingClassifier
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA, TruncatedSVD
+from matplotlib.ticker import MultipleLocator
+from IPython.display import display
+```
+
+```{python merging_data}
+orig = pd.read_csv('../data/games_prelim.csv')
+new = pd.read_csv('../data/games.csv')
+new = new.drop_duplicates()
+columns_to_keep = ['NAME', 'NEGATIVE REVIEWS','POSITIVE REVIEWS', 'TOTAL REVIEWS', 'ALL TIME PEAK', 'positive_review_rate', 
+'peak_ratio','log_negative_reviews', 'log_positive_reviews', 'log_total_reviews', 'log_all_time_peak'] 
+merged = orig.merge(new[columns_to_keep], on='NAME', how='left')
+merged = merged.drop_duplicates(subset='NAME', keep='first')
+merged = merged.drop('Unnamed: 0', axis=1)
+merged.to_csv('../data/new_success.csv')
+```
+
+```{python import_data}
+data = pd.read_csv('../data/new_success.csv')
+data = data.drop('Unnamed: 0', axis=1)
+```
+
+## Introduction
+Definitions and Links:
+ - Steam is the largest online game platform that acts as a middleman between game developers and players. It allows a seamless method of purchasing, downloading, and playing games. 
+ - Playability is single player, multiplayer, coop (cooperation)
+ - Success - peak ratio > 19%
+ - SteamDB https://steamdb.info/
+ - SteamCharts https://steamcharts.com/
+ - Official Steam store https://store.steampowered.com/
+
+For our project topic, we plan on analyzing Steam game data to see if there are certain variables that classify success. We define success as games that have a high positive/negative review ratio and a high daily peak/all time peak ratio. We chose this topic because the gaming industry is an ever-expanding market and there has been an influx of both indie games and large company-backed games (double A or triple A) that have both seen successes and failures. We want to see if there are some similarities between games that are successful. All of our data has been scraped from the official Steam store page and third party trackers, SteamDB and SteamCharts. Due to daily peak being volatile as it is dependent on the day, all of our data regarding peaks and reviews are scraped on February 28, 2024. Due to a time difference with SteamDB and SteamCharts databases, we chose to omit any games that were released pre-early 2012 as SteamCharts does not go that back to prevent any incorrect game data. Given our binary definition of success for each game, we want to look at what separates the successful games from the non-successful games using variables like genres and base price. 
+
+## Data Wrangling
+
+After we scraped the websites for our game data, we had to fix a few columns so they would all follow a standard format. For release date, we put it into YYYY-MM-DD format. We turned genres and online playability into categorical columns and then broke it up into individual columns with binary values. For base price, there were some games that had different naming variants for 'Free', so we simplify all free games to 0 so our base price column only contains numerical values. Unfortunately, we had to drop the tags category as there were too many values to account for (~410 unique tags). For our success variable, we created several new columns that were used to calculate success: positive/negative review ratios and daily peak/all time peak ratios. We also decided to create a column that is the log value of the reviews and peaks to have a smaller range of values.
+
+# Key variables in defining success (scraped on 2/28/2024)
+DAILY/ALL TIME PEAKS RATIO: the percent difference between the daily and the all time peaks
+
+# Key variables for success classification and analysis
+GENRES: what type of genre(s) the game is considered
+PUBLISHER: the publishing company
+DEVELOPER: the developing company
+BASE PRICE: the base price of the game
+SUCCESS: binary value of whether the game is successful
+NEGATIVE REVIEWS: the number of negative reviews
+POSITIVE REVIEWS: the number of positive reviews
+TOTAL REVIEWS: the total number of reviews
+ALL TIME PEAK: the peak player count since game release
+POS/NEG REVIEWS RATIO: the percent of positive reviews to total reviews
+
+## Methodology
+
+In this part, we did both visualizations and summary statistics to help us gain insights into the distribution of game success and the relationship between various key variables.
+
+We present a bar plot showing the distribution of the "Success" variable, categorizing games into successful and unsuccessful categories. 
+
+```{r count-plot}
+#| warning: false
+#| message: false
+#| fig-alt: Distribution of Game Success
+#| fig-cap: Bar plot showing the distribution of game success.
+#| fig-cap-location: top
+# Bar plot of success variable
+games_plots <- py$data
+count_plot <- ggplot(games_plots, aes(x = factor(SUCCESS))) +
+  geom_bar() +
+  labs(x = "Success", y = "Count") +
+  scale_color_viridis_d() +
+  theme_minimal() + 
+  ggtitle("Count of Successful and Non-successful Games")
+
+ggsave("../figures/count.jpg", plot = count_plot, width = 6, height = 4, units = "in", dpi = 300)
+```
+From our analysis, we observe that approximately 10% of the total games in our dataset are considered successful based on our defined criteria.
+
+
+Next, we delve into exploring the relationship between positive reviews, negative reviews, and game success through a scatter plot. By plotting the logarithm of positive reviews against the logarithm of negative reviews, colored by the "Success" variable, we aim to identify any discernible patterns or clusters.
+
+```{r review-plot}
+#| warning: false
+#| message: false
+#| fig-alt: Positive Reviews vs. Total Reviews by Game Success
+#| fig-cap: Scatter plot showing the relationship between positive reviews and negative reviews by game success.
+#| fig-cap-location: top
+
+# Scatter plot of positive reviews vs. total reviews by success
+review_plot <- ggplot(games_plots, aes(x = log_positive_reviews, y = log_negative_reviews, color = factor(SUCCESS))) +
+  geom_point() +
+  labs(x = "Log Positive Reviews", y = "Log Negative Reviews" , color = "Success") +
+  ggtitle("Log Positive Reviews vs. Log Negative Reviews by Game Success") +
+  scale_color_viridis_d() +
+  theme_minimal()
+
+ggsave("../figures/review.jpg", plot = review_plot, width = 6, height = 4, units = "in", dpi = 300)
+```
+
+```{r price-plot}
+#| fig-alt: Histogram of basic price showing the distribution of base price 
+#| fig-cap: Histogram of base price by game successs
+#| fig-cap-location: top
+
+
+# Histogram of base price
+price_plot <- ggplot(games_plots, aes(x = `BASE PRICE`, fill = factor(SUCCESS))) +
+  geom_histogram(binwidth = 5, alpha = 0.7, position = "identity") +
+  labs(x = "Base Price", y = "Frequency", fill = 'Success') +
+  ggtitle("Distribution of Price by Game Success") +
+  scale_color_viridis_d() +
+  theme_minimal()
+
+ggsave("../figures/price.jpg", plot = price_plot, width = 6, height = 4, units = "in", dpi = 300)
+```
+
+The plot reveals two distinct clusters, suggesting that successful games tend to have more positive reviews than negative reviews overall.
+
+Considering our variability and range of each variable, we log-transform some key variables. We then provide a summary statistics table for key variables including "BASE PRICE," "log_all_time_peak," "log_negative_reviews," "log_positive_reviews," "log_total_reviews," and "peak_ratio."
+
+
+```{r summary-table}
+summary_stats <- games_plots %>%
+  select(`BASE PRICE`,`log_all_time_peak`,`peak_ratio`, `log_total_reviews` ,`log_positive_reviews`, `log_negative_reviews`) %>%
+  pivot_longer(cols = everything(), names_to = "Variable") %>%
+  group_by(Variable) %>%
+  summarise(
+    Mean = mean(value, na.rm = TRUE),
+    Median = median(value, na.rm = TRUE),
+    SD = sd(value, na.rm = TRUE),
+    Min = min(value, na.rm = TRUE),
+    Max = max(value, na.rm = TRUE)
+  )
+
+kable(summary_stats, caption = "Summary Statistics of Key Variables")
+```
+
+Our approach to "Results" was to separate our data into non-successful and successful categories because we thought otherwise our unsupervised model might have led to some non-interpretable findings. Our hope then with these separated data is to find some similarities among the genres, publisher, developer, playability, and base price columns.
+
+## Results
+
+```{python succ/not-succ}
+# drops first column
+games = data
+
+# turns publisher and developer into categorical columns
+games["PUBLISHER"] = pd.Categorical(games["PUBLISHER"])
+games["DEVELOPER"] = pd.Categorical(games["DEVELOPER"])
+
+# splits data into successful and unsuccessful
+succ = games[games["SUCCESS"] == 1].drop(["NAME","SUCCESS"], axis = 1)
+fail = games[games["SUCCESS"] == 0].drop(["NAME","SUCCESS"], axis = 1)
+games_kmeans = games.drop(["NAME","SUCCESS"], axis = 1)
+# define categorical columns
+categorical_columns = ["DEVELOPER", "PUBLISHER"]
+# define numerical columns
+numerical_columns = ["BASE PRICE", 'NEGATIVE REVIEWS', 'POSITIVE REVIEWS', "TOTAL REVIEWS", 'ALL TIME PEAK', 'positive_review_rate', 'peak_ratio', 'log_negative_reviews', 'log_positive_reviews', 'log_total_reviews', 'log_all_time_peak']
+```
+
+
+```{python preprocessor}
+# initializes a preprocessor
+preprocessor = make_column_transformer(
+  (OneHotEncoder(), categorical_columns),
+  (StandardScaler(), numerical_columns),
+  remainder='passthrough',
+  verbose_feature_names_out = False
+)
+```
+
+```{python scree-plot-kmeans}
+#| message: false
+# helper function for scree plot 
+def generate_inertia_plot(data, title, name):
+    # Preprocess data
+    categorical_columns = data.select_dtypes(include=['object']).columns
+    numerical_columns = data.select_dtypes(include=['int', 'float']).columns
+    
+    # create preprocessor
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', StandardScaler(), numerical_columns),
+            ('cat', OneHotEncoder(), categorical_columns)
+        ])
+    
+    # fit data
+    X = preprocessor.fit_transform(data)
+    
+    # find inertia
+    inertia = []
+    for k in range(1, 10):
+        kmeans = KMeans(n_clusters=k, n_init=20, random_state=13).fit(X)
+        inertia.append(kmeans.inertia_)
+    
+    # create inertia df
+    inertia_df = pd.DataFrame({"k": range(1, 10), "Inertia": inertia})
+    
+    # Plotting
+    fig, ax = plt.subplots()
+    sns.lineplot(data=inertia_df, x="k", y="Inertia", ax=ax)
+    ax.set(title=title, xlabel="Number of Clusters (k)", ylabel="Inertia")
+    ax.xaxis.set_major_locator(MultipleLocator(1))
+    plt.tight_layout()
+    plt.show()
+
+
+# generate scree plot for successful games
+generate_inertia_plot(succ, title="Scree Plot for Successful Games", succ_scree)
+
+# generate scree plot for unsuccessful games
+generate_inertia_plot(fail, title="Scree Plot for Unsuccessful Games", fail_scree)
+```
+
+
+```{python kmeans-succ}
+# generate a KMeans pipeline with 3 clusters for successful games
+succ_clusters = Pipeline([
+    ("preprocessor", preprocessor),
+    ("kmeans", KMeans(n_clusters=6, n_init=20, random_state=8))
+]).fit(succ)
+
+# add in cluster id for successful df
+succ['cluster_id'] = succ_clusters["kmeans"].labels_
+```
+
+
+```{python kmeans-not-succ}
+# generate a KMeans pipeline with 3 clusters for non-successful games
+fail_clusters = Pipeline([
+    ("preprocessor", preprocessor),
+    ("kmeans", KMeans(n_clusters=4, n_init=20, random_state=8))
+]).fit(fail)
+
+# add in cluster id for non-successful df
+fail['cluster_id'] = fail_clusters["kmeans"].labels_
+```
+
+
+
+```{python show-succ-size}
+#| fig-alt: This shows the size differences between the three clusters in successful games
+fig, ax = plt.subplots()
+sns.set(style='whitegrid', palette='colorblind')
+sns.countplot(x = succ['cluster_id'], ax = ax)
+ax.set(xlabel = 'Cluster ID', ylabel = 'Number of Observations', title='Sizes of Each Cluster Group For Successful Games')
+plt.tight_layout()
+plt.show()
+plt.savefig("../figures/succ_cluster_size.jpg")
+```
+
+```{python show-fail-size}
+#| fig-alt: This shows the size differences between the three clusters in non-successful games
+fig, ax = plt.subplots()
+sns.set(style='whitegrid', palette='colorblind')
+sns.countplot(x = fail['cluster_id'], ax = ax)
+ax.set(xlabel = 'Cluster ID', ylabel = 'Number of Observations', title='Sizes of Each Cluster Group For Non-Successful Games')
+plt.tight_layout()
+plt.show()
+plt.savefig("../figures/fail_cluster_size.jpg")
+```
+
+
+```{python dict-helper}
+genre_columns = ['Action', 'Adventure', 'Casual', 'Early Access', 'Free to Play', 'Indie', 'Massively Multiplayer', 'Movie', 'RPG', 'Racing', 'Simulation', 'Sports', 'Strategy']
+def add_dict(dataframe):
+  dictionary = {}
+  for genre in genre_columns:
+    dictionary[genre] = dataframe[genre].sum()
+  return dictionary
+```
+
+```{python helper-prints}
+def print_dict(dataframe):
+  print("-------------------------------------------------------")
+  total_width = 52
+  for genre in dataframe:
+      name = genre + ':'
+      print(
+          f"{name.ljust(total_width//2)}{(str(dataframe[genre])).rjust(total_width//2)}")
+  print("-------------------------------------------------------")
+```
+
+```{python k-means-analysis-succ}
+#| message: false
+# grab each clusters' subsection
+succ_0 = succ[succ['cluster_id'] == 0]
+cluster0_length = len(succ_0)
+
+succ_1 = succ[succ['cluster_id'] == 1]
+cluster1_length = len(succ_1)
+
+succ_2 = succ[succ['cluster_id'] == 2]
+cluster2_length = len(succ_2)
+
+succ_3 = succ[succ['cluster_id'] == 3]
+cluster0_length = len(succ_3)
+
+succ_4 = succ[succ['cluster_id'] == 4]
+cluster1_length = len(succ_4)
+
+succ_5 = succ[succ['cluster_id'] == 5]
+cluster2_length = len(succ_5)
+
+print(f"The number of observations belonging to cluster 0 is {cluster0_length}, for cluster 1 is {cluster1_length}, and there are {cluster2_length} for cluster 2.\n")
+
+# make dictionaries of each cluster + full dataframe
+succ_dict = add_dict(succ)
+succ_0_dict = add_dict(succ_0)
+succ_1_dict = add_dict(succ_1)
+succ_2_dict = add_dict(succ_2)
+succ_3_dict = add_dict(succ_0)
+succ_4_dict = add_dict(succ_1)
+succ_5_dict = add_dict(succ_2)
+
+# print results of each one
+print('The result for the entire success dataframe in regards to genre is: ')
+print_dict(succ_dict)
+print()
+
+print('The result for the cluster 0 success dataframe in regards to genre is: ')
+print_dict(succ_0_dict)
+print()
+
+print('The result for the cluster 1 success dataframe in regards to genre is: ')
+print_dict(succ_1_dict)
+print()
+
+print('The result for the cluster 2 success dataframe in regards to genre is: ')
+print_dict(succ_2_dict)
+
+print('The result for the cluster 3 success dataframe in regards to genre is: ')
+print_dict(succ_3_dict)
+print()
+
+print('The result for the cluster 4 success dataframe in regards to genre is: ')
+print_dict(succ_4_dict)
+print()
+
+print('The result for the cluster 5 success dataframe in regards to genre is: ')
+print_dict(succ_5_dict)
+```
+Analying the results from the success dataframes, we see indie games make up a majority of the successful game genres, with a whopping 380 successful games (based on our definition) being indie games. In Cluster 0, it seems to be mainly focused on Indie games (181). For Cluster 1, it is again focused on Indie games (197) but there is a relatively significant number of Action (134) and Adventure (125) games. For Cluster 2, we actually move away from the Indie genre and focus more on Action (42), Adventure (36), and RPG (25) games. Given this data, we can conclude the most successful games are usually Indie games that follow Action-Adventure themes.
+
+
+```{python k-means-analysis-fail}
+# grab each clusters' subsection
+fail_0 = fail[fail['cluster_id'] == 0]
+cluster0_length = len(fail_0)
+
+fail_1 = fail[fail['cluster_id'] == 1]
+cluster1_length = len(fail_1)
+
+fail_2 = fail[fail['cluster_id'] == 2]
+cluster2_length = len(fail_2)
+
+fail_3 = fail[fail['cluster_id'] == 3]
+cluster2_length = len(fail_3)
+
+print(f"The number of observations belonging to cluster 0 is {cluster0_length}, for cluster 1 is {cluster1_length}, and there are {cluster2_length} for cluster 2.\n")
+
+# make dictionaries of each cluster + full dataframe
+fail_dict = add_dict(fail)
+fail_0_dict = add_dict(fail_0)
+fail_1_dict = add_dict(fail_1)
+fail_2_dict = add_dict(fail_2)
+fail_3_dict = add_dict(fail_3)
+
+# print results of each one
+print('The result for the entire failure dataframe in regards to genre is: ')
+print_dict(fail_dict)
+print()
+
+print('The result for the cluster 0 failure dataframe in regards to genre is: ')
+print_dict(fail_0_dict)
+print()
+
+print('The result for the cluster 1 failure dataframe in regards to genre is: ')
+print_dict(fail_1_dict)
+print()
+
+print('The result for the cluster 2 failure dataframe in regards to genre is: ')
+print_dict(fail_2_dict)
+```
+Analyzing the data from the failure dataframes, it seems like it follows a similar trend to the successful ones. This could be due to Indie Action-Adventure games are the ones that are most common games in the market right now. For cluster 0, it focuses more on Action (329) and Free to Play (297). For cluster 1, there's more Action (345) games. And for Cluster 2, there's a massive skew of Indie games (1130) with Action (646) and Adventure (673) behind. From these data, we can conclude that Indie Action-Adventure games, while they have the most probable chance of success, the opposite is also true.
+
+```{python trunc-pipes}
+#| message: false
+# fits a pipe for successful games
+trunc_succ_pipe_test = Pipeline([
+  ("preprocessor", preprocessor),
+  ("trunc", TruncatedSVD(10))
+]).fit(succ)
+
+# fits a pipe for unsuccessful games
+trunc_fail_pipe_test = Pipeline([
+  ("preprocessor", preprocessor),
+  ("trunc", TruncatedSVD(10))
+]).fit(fail)
+```
+
+
+```{python scree-plot}
+#| message: false
+# making scree plot
+fig, ax = plt.subplots()
+sns.lineplot(
+  x = np.arange(1, 11),
+  y = trunc_succ_pipe_test["trunc"].explained_variance_ratio_,
+  ax = ax)
+ax.set(
+  xlabel = "Components",
+  ylabel = "PVE",
+  title = "Successful Games Scree Plot"
+)
+
+ax.xaxis.set_major_locator(MultipleLocator(1)) 
+plt.tight_layout()
+plt.show()
+```
+
+
+```{python scree-plot-truncated}
+# making scree plot
+fig, ax = plt.subplots()
+sns.lineplot(
+  x = np.arange(1, 11),
+  y = trunc_fail_pipe_test["trunc"].explained_variance_ratio_,
+  ax = ax)
+ax.set(
+  xlabel = "Components",
+  ylabel = "PVE",
+  title = "Unsuccessful Games Scree Plot"
+)
+ax.xaxis.set_major_locator(MultipleLocator(1)) 
+plt.tight_layout()
+plt.show()
+```
+
+```{python optimal-pipes}
+# fits a truncatedsvd for successful games with optimal value
+trunc_succ_pipe = Pipeline([
+  ("preprocessor", preprocessor),
+  ("trunc", TruncatedSVD(5))
+]).fit(succ)
+
+# fits a truncatedsvd for unsuccessful games  with optimal value
+trunc_fail_pipe = Pipeline([
+  ("preprocessor", preprocessor),
+  ("trunc", TruncatedSVD(6))
+]).fit(fail)
+
+```
+
+```{python synthetic data}
+import random
+
+# number of data to generate
+n = 5001
+
+# total number of games in our dataset
+size = len(games)
+
+# extracts publisher developer pairs
+pub_devel = games[["PUBLISHER", "DEVELOPER"]]
+
+# corresponds each unique value price to float between 0-1 (ratio)
+prices = games["BASE PRICE"]
+counts = prices.value_counts().reset_index()
+counts.columns = ["base_price", "ratio"]
+counts.ratio = counts.ratio/size
+counts.ratio = counts.ratio.cumsum()
+
+# length of counts
+size_splits = len(counts)
+
+# different playability options
+playability = ["LAN Co-op" ,"Online Co-op", "Online PvP", "Shared/Split Screen Co-op", "Shared/Split Screen PvP", "Single-player"]
+play_size = len(playability)
+genres = ['Action', 'Adventure', 'Casual', 'Early Access', 'Indie', 'Massively Multiplayer', 'Movie', 'RPG', 'Racing', 'Simulation','Sports', 'Strategy']
+genre_size = len(genres)
+
+# intialized synthetic data's dataframe columns
+synthetic = pd.DataFrame(columns=['DEVELOPER', 'PUBLISHER', 'BASE PRICE', 'Action',
+       'Adventure', 'Casual', 'Early Access', 'Free to Play', 'Indie',
+       'Massively Multiplayer', 'Movie', 'RPG', 'Racing', 'Simulation',
+       'Sports', 'Strategy', 'LAN Co-op', 'Online Co-op', 'Online PvP',
+       'Shared/Split Screen Co-op', 'Shared/Split Screen PvP',
+       'Single-player'])
+
+
+for i in range(1,n+1):
+  # chooses a random pair of publisher and developer
+  random_row = random.randint(1, size)
+  company = pub_devel.iloc[random_row]
+  
+  # generates a float from 0-1
+  random_price_split = random.random()
+  # gets price from random number
+  for j in range(0,size_splits):
+    if(random_price_split <= counts.iloc[j]["ratio"]):
+      price = counts.iloc[j]["base_price"]
+      break
+  
+  random_play = random.randint(1, play_size)
+  play_s = random.sample(playability, random_play)
+  
+  random_genre = random.randint(1, genre_size)
+  genre_s = random.sample(genres, random_genre)
+  
+  # Create a dictionary representing the row
+  r1 = {'DEVELOPER': company['DEVELOPER'],
+        'PUBLISHER': company['PUBLISHER'],
+        'BASE PRICE': price}
+  r2 = {genre: 1 if genre in genre_s else 0 for genre in genres}
+  r3 = {play: 1 if play in play_s else 0 for play in playability}
+  new_row = {**r1,**r2,**r3}
+  
+  synthetic = synthetic._append(new_row, ignore_index = True)
+
+synthetic["Free to Play"] = 0
+synthetic.loc[synthetic["BASE PRICE"] == 0, "Free to Play"] = 1
+  
+```
+
+```{python}
+synthetic.to_csv('../data/synthetic_data.csv')
+```
+
+
+
+```{python fitting_without_PandD}
+X = data.drop(["SUCCESS" ,"NAME","DEVELOPER", "PUBLISHER"], axis=1)
+y = data["SUCCESS"]
+
+
+
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.9, random_state = 8264)
+# categorical_columns = ["DEVELOPER", "PUBLISHER"]
+# # define numerical columns
+numerical_columns = ["BASE PRICE", "ALL TIME PEAK", "TOTAL REVIEWS","NEGATIVE REVIEWS"]
+# 
+
+preprocessor = make_column_transformer(
+  (StandardScaler(), numerical_columns),
+  remainder='passthrough',
+  verbose_feature_names_out = False
+)
+
+pipeline_log = Pipeline(
+    [
+      ("preprocessor", preprocessor),
+      ("estimator", LogisticRegression())
+    ]
+  )
+pipeline_log.fit(X_train, y_train)
+
+y_pred_log_data = pipeline_log.predict_proba(X_test)[:, 1]
+
+log_auc_logs = roc_auc_score(y_test, y_pred_log_data)
+
+
+
+rf_pipeline = Pipeline(
+    [
+        ('preprocessor', preprocessor),
+        ('rf', RandomForestRegressor(random_state=0))
+    ]
+)
+
+b = np.arange(300, 501, 50)
+m = np.arange(1, 6)
+
+# Define the cross-validation strategy
+cv = KFold(n_splits=5)
+# Create a pipeline for Random Forest regression
+
+# Define the grid of hyperparameters to search over
+param_grid_rf = dict(
+    rf__n_estimators = b,
+    rf__max_features = m
+)
+
+# Perform grid search using cross-validation to find the best hyperparameters
+grid_rf = (
+  GridSearchCV(
+    rf_pipeline,
+    param_grid = param_grid_rf,
+    cv = cv,
+    scoring = 'neg_mean_squared_error')
+  .fit(X_train, y_train)
+)
+
+# find predictions
+y_pred_rf = grid_rf.predict_proba(X_test)[:,1]
+
+
+# Evaluate the performance of the model
+log_auc_rf = roc_auc_score(y_test, y_pred_rf)
+
+```
+
+```{python svm-gridsearch-ex}
+#| eval: false
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import KFold, StratifiedShuffleSplit, GridSearchCV
+from sklearn.kernel_approximation import Nystroem
+from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import roc_auc_score
+
+# alpha range to search over in SVM
+alpha_range = np.logspace(-2, 10, 10)
+## alpha range controls how strong regularization (like with ridge/lasso)
+# gamma range to search over
+gamma_range = np.logspace(-9, 3, 10)
+## gamma involved in rbf and poly kernels, ignored in linear
+# different kinds of kernels to search over
+kernels = ['rbf', 'poly', 'linear']
+
+# setting up parameter grid dictionary
+param_grid_svm = dict(
+  kernel_approx__gamma=gamma_range, kernel_approx__kernel=kernels,
+  estimator__alpha=alpha_range
+)
+# stratified CV because small number of positive cases
+cv = StratifiedShuffleSplit(n_splits=5, random_state=100)
+
+# declare pipeline
+pipeline_svm = Pipeline(
+  [
+    ('preprocess', preprocessor),
+    ('kernel_approx', Nystroem()), # NOTE!
+    ('estimator', SGDClassifier(loss='hinge')) # hinge for linear SVM
+  ]
+)
+
+# Fit the pipeline
+pipeline_svm.fit(X_train, y_train)
+
+# find predictions
+y_pred_svm = pipeline_svm.predict(X_test)
+# Evaluate the performance of the model
+log_auc_svm = roc_auc_score(y_test, y_pred_svm)
+
+```
+
+```{python GBM}
+from sklearn.ensemble import GradientBoostingClassifier
+
+cv = ShuffleSplit(n_splits = 5, random_state = 1)
+
+pipeline_gbm = Pipeline(
+  [
+    ('preprocessor', preprocessor),
+    ('gbm', GradientBoostingClassifier(random_state = 0))
+  ]
+)
+
+b = np.arange(100, 5002, 1000)
+lamb = [0.001, 0.01, 0.1]
+d = [1, 2, 3, 4]
+
+param_grid_gbm = dict(
+  gbm__n_estimators = b,
+  gbm__learning_rate = lamb,
+  gbm__max_depth = d
+)
+
+grid_gbm = (
+  GridSearchCV(pipeline_gbm, 
+  param_grid = param_grid_gbm,
+  cv = cv,
+  scoring = 'roc_auc')
+  .fit(X_train, y_train)
+)
+
+best_gbm = grid_gbm.best_estimator_
+
+y_pred_gbm = best_gbm.predict(X_test)
+# Evaluate the performance of the model
+log_auc_gbm = roc_auc_score(y_test, y_pred_gbm)
+
+
+```
+
+
+
+```{python}
+log_auc_svm
+log_auc_rf
+log_auc_log
+log_auc_gbm
+```
+
+
+
+
+```{python DONT-TOUCH-FUTURE-CODE}
+# X = games.drop(["SUCCESS", "NAME"], axis=1)
+# y = games["SUCCESS"]
+# X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.6, random_state = 42069)
+# 
+# categorical_columns = ["DEVELOPER", "PUBLISHER"]
+# # define numerical columns
+# numerical_columns = ["BASE PRICE"]
+# 
+# 
+# preprocessor = make_column_transformer(
+#   (OneHotEncoder(), categorical_columns),
+#   (StandardScaler(), numerical_columns),
+#   remainder='passthrough',
+#   verbose_feature_names_out = False
+# )
+# 
+# 
+# 
+# pipeline_log = Pipeline(
+#     [
+#       ("preprocessor", preprocessor),
+#       ("estimator", LogisticRegression())
+#     ]
+#   )
+# pipeline_log.fit(X_train, y_train)
+# 
+# y_pred_log = pipeline_log.predict(X_test)
+# 
+# log_auc_log = roc_auc_score(y_test, y_pred_log)
+# 
+# rf_pipeline = Pipeline(
+#     [
+#         ('preprocessor', preprocessor),
+#         ('rf', RandomForestRegressor(random_state=0))
+#     ]
+# ).fit(X_train, y_train)
+# 
+# # find predictions
+# y_pred_rf = rf_pipeline.predict(X_test)
+# # Evaluate the performance of the model
+# log_auc_rf = roc_auc_score(y_test, y_pred_rf)
+
+```
+
+```{python sanjae-sshittying-pseudocode}
+
+for x in range():
+  printf(df.columns[x])
+  df = df[:,x].value_counts()
+
+```
+
+
+## Discussion
+
+After taking a step back and re-looked at our research question. We realized the biased nature of how we defined success. Since we used all of our data initially to define to "success", we ran into the issue where we had no unseen data. So we changed our focus to try and figure out based off of our definition of success/unsuccessful what all these games have in common. This led us to the use of unsupervised models to analyze the data (such as genre, publisher, developer, base price) which were not used initially to define success. 
+
+K-Means Discussion
+
+We think if we had some concrete definition of what defines a successful games; such as some top trending games, or revenue. Then we could compare our definition of success to this concrete version of success. We think the change to seeing what genres, publishers, developers, and price of the games is appropriate. Our training data was limited in the scope, as games released prior to 2012 did not have accurate data on SteamCharts, so we had to drop those games. To address this concern we considering making synthetic data which would randomize the number of features and randomize the specific features as well. Then make predictions/classifications with these data. However we run into the problem of it being synthetic data, it has no direct correlation to whether or not a games with those predictors would actually be successful. 
+
+Potential Benefits
+
+After looking at our data, we find that Indie games are very volatile as they are the highest in both the success and failure categories. However, this is due to how abundant Indie games (particularly Action-Adventure) are in the gaming market right now. However, we do see a jump in genres like Sports and Racing that have more non-successful stories. So while Indie Action-Adventure games might be the more 'popular' non-successful games, it also has the highest chance of success. There are some genres like Sports and Racing games that appear to be more non-successful than achieving success.
+The benefits we see can go down two paths. One being having the common predictors of successful game we can say the game may be likely to succeed. The second being given the common predictors for both successful and unsuccessful games if a new game avoids both predictors it may create a new style of game. And similar to "first mover" advantage a newer game that follows those line may have a higher chance of being successful.
+
+Ethical Concerns
+There is no clear ethical concerns. We followed the websites' robots.txt file and properly cited the sources/links in our paper. I don't think there are any ethical concerns with the data itself as it is all publicly available data.
+
+Future plan:
+We then try to predict the success of games based on the synthetic dataset using classification models like random forest, but also delve deeper into understanding the underlying similarities within each cluster, enabling developers and publishers to make informed decisions based on data-driven insights.

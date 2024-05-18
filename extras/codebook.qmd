@@ -1,0 +1,28 @@
+---
+title: "codebook_row_generator"
+format: html
+editor: visual
+---
+
+```{python code-book-gen}
+before = "| "
+after = " |"
+empty = "  "
+highlight = "`"
+
+# makes a string representing how the code book should be formatted
+def gen_codebook(data, string):
+  ret = ""
+  for col in data.columns:
+    ret += before
+    ret += highlight
+    ret += col
+    ret += highlight
+    ret += after
+    ret += empty
+    ret += before
+    ret += string
+    ret += after
+    
+  return ret
+```

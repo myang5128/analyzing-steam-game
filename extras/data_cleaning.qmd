@@ -1,0 +1,101 @@
+---
+title: "MISC"
+format: html
+editor: visual
+---
+
+# genres & tags set -\> categorical
+
+# release -\> mm//dd/yyyy
+
+# platforms -\> categorical
+
+# SP/Coop/Mp -\> categorical
+
+# base price -\> Free/Free to Play etc -\> 0.00 (Remove Demo)
+
+```{python import-libraries}
+import pandas as pd
+```
+
+
+```{python read-data}
+games = pd.read_csv('../data/Uncleaned Data/games_full.csv')
+fixed_games = games
+```
+
+```{python categorical}
+# make columns categorical
+cat_columns = ['platforms', 'genres', 'tags', 'SP/Coop/MP']
+for cat in cat_columns:
+  fixed_games[cat] = pd.Categorical(fixed_games[cat])
+```
+
+```{python data-cleaning-zeroes}
+condition_list = ['genres', 'developer', 'publisher', 'SP/Coop/MP']
+# removes data with zeros
+for cond in condition_list:
+  condition = fixed_games[cond] == '0'
+  fixed_games = fixed_games[~condition]
+```
+
+```{python data-cleaning-function-genres}
+values_to_drop = ['Utilities', 'Video Production', 'Design & Illustration', 'Photo Editing']
+# helper function that removes bad data
+def contains_values_to_drop(lst):
+    return any(item in lst for item in values_to_drop)
+```
+
+```{python data-cleaning-bad-genres}
+# removes all data with genres that are not needed
+fixed_games= fixed_games[~fixed_games['genres'].apply(contains_values_to_drop)]
+```
+
+```{python data-cleaning-function-price}
+price_to_drop = ['Demo', 'demo', "It Takes Two Friend's Pass", 'Third-party', 'Try it out!', 'Shadow of the Tomb Raider Free Trial', 'DEMO']
+# helper function that removes bad data
+def contains_price_to_drop(lst):
+  return any(item in lst for item in price_to_drop)
+```
+
+```{python data-cleaning-bad-price}
+# hard code to remove bad game data
+fixed_games= fixed_games[~fixed_games['base price'].apply(contains_price_to_drop)]
+```
+
+```{python misc-cleaning}
+# hard code to remove bad game
+fixed_games = fixed_games.drop(1538)
+```
+
+```{python clean-up-price}
+# standard all prices
+price_cond = ['Free To Play', 'Free to Play', 'Free']
+for cond in price_cond:
+  fixed_games.loc[fixed_games['base price'] == cond, 'base price'] = '0'
+```
+
+```{python date-remove-old}
+# remove games that are released pre-early 2012
+fixed_games['release'] = pd.to_datetime(fixed_games['release'])
+time_mask = (fixed_games['release'].dt.year > 2012) | ((fixed_games['release'].dt.year == 2012) & (fixed_games['release'].dt.month > 8))
+fixed_games = fixed_games.loc[time_mask]
+```
+
+```{python reformat-date}
+# helper function to reformat date
+def process_timestamp(timestamp):
+    return timestamp.strftime('%Y-%m-%d')
+# reformat all dates 
+fixed_games['release'] = fixed_games['release'].apply(process_timestamp)
+```
+
+```{python rename-columns}
+# rename all column to make it look better
+fixed_games = fixed_games.rename(columns={'name': 'NAME', 'genres': 'GENRES', 'developer': 'DEVELOPER', 'publisher': 'Publisher', 'release': 'RELEASE DATE', 'platforms': 'PLATFORMS', 'tags': 'TAGS', 'SP/Coop/MP': 'SP/COOP/MP', 'base price': 'BASE PRICE', 'negative reviews': 'NEGATIVE REVIEWS', 'positive reviews': 'POSITIVE REVIEWS', 'total reviews': 'TOTAL REVIEWS', 'peak(2/28)': '24-HR PEAK (2/28)', 'all_time_peak': 'ALL TIME PEAK'})
+```
+
+```{python create-new-csv}
+# save to file
+fixed_games.to_csv('../data/games_cleaned.csv', index=False)
+```

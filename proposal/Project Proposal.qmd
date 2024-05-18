@@ -1,0 +1,126 @@
+---
+title: "Project Proposal"
+author: "Sanjae Chin, Edward Yang, Mike Yang"
+date: "02/23/2024"
+subtitle: "Due: 11:59 PM on 2/28/2023"
+format: html
+embed-resources: true
+---
+
+## DataCleaning:
+
+```{r import-data-r}
+library(readr)
+Car_Crash <- read.csv("../data/Car_Crash.csv")
+Games <- read.csv("../data/games.csv")
+```
+
+```{r clean-data-r}
+# select variables
+car_selected_variables <- Car_Crash[, c("Vehicle.Make", "Vehicle.Model", "Vehicle.Year", 
+                                     "Vehicle.Damage.Extent", "Vehicle.Body.Type",
+                                     "Vehicle.Movement", "Vehicle.Continuing.Dir", 
+                                     "Vehicle.Going.Dir", "Speed.Limit", "Parked.Vehicle",
+                                     "Equipment.Problems", "Vehicle.ID")]
+
+game_selected_variables <- Games[, c("NAME","GENRES","DEVELOPER","PUBLISHER","RELEASE.DATE", "PLATFORMS", "TAGS", "SP.COOP.MP", "BASE.PRICE", "NEGATIVE.REVIEWS", "POSITIVE.REVIEWS", "TOTAL.REVIEWS", "X24.HR.PEAK..2.28.", "ALL.TIME.PEAK", "positive_review_rate", "peak_ratio", "success", "log_negative_reviews", "log_positive_reviews", "log_total_reviews", "log_peak", "log_all_time_peak")]
+
+
+write.csv(car_selected_variables, "cleaned_car_data.csv", row.names = FALSE)
+write.csv(game_selected_variables, "cleaned_game_data.csv", row.names = FALSE)
+
+```
+
+## Dataset 1:
+
+### Introduction:
+
+This dataset provides information scraped from both the official Steam website and a third-party Steam database website. The dataset includes publicly available information like the name, the publishing and developing companies, its base price, and its genres and tags. 
+
+### Variables:
+
+There are 6494 observations and 11 variables in the dataset.
+
+-   **Name:** This refers to the game name.
+
+-   **Genres:** This shows the genres that the game fall under (ex. Action, Adventure, Strategy, Simulation, etc).
+
+-   **Tags:** This shows the most popular tags given by Steam-users that are subcategories of genres (ex. Base Building, Automation, Open World Survival Crafting, FPS, etc).
+
+-   **Release:** This shows when the game was first fully released.
+
+-   **Developer:** This is the developing company.
+
+-   **Publisher:** This is the publishing company.
+
+-   **Platforms:** This shows the number of available operating systems the game can run on (ex. Windows, MacOS, Linux, etc).
+
+-   **SP/Coop/MP:** This shows how the game can be played in regards to other players.
+
+-   **Price** This shows the base cost of the full game excluding downloadable contents or microtransanctions.
+
+-   **Positive Reviews:** This shows the number of positive reviews. Last updated on Feb 28, 2024.
+
+-   **Negative Reviews:** This shows the number of negative reviews. Last updated on Feb 28, 2024.
+
+-   **Total Reviews:** This shows the number of total reviews. Last updated on Feb 28, 2024.
+
+-   **Peak:** This is the daily peak player count. Last updated on Feb 28, 2024.
+
+-   **All Time Peak:** This is the all time peak player count. Last updated on Feb 28, 2024.
+
+
+### Research Questions:
+
+In the gaming industry, there are a lot of games that are released on Steam but are ultimately taken down due to it being not successful. Given our definition of success as being able to last on Steam against the test of time while managing to stay relevant, are we able to predict the success of a game based on factors like the genre, tags, player count, reviews, and when the game was last updated?
+
+### Source:
+
+Third-Party Steam Database: https://steamdb.info/
+
+Official Steam Website: https://store.steampowered.com/
+
+Third-Party Steam Charts: https://steamcharts.com/
+
+
+## Dataset 2:
+
+### Introduction:
+
+This dataset provides information on motor vehicle operators (drivers) involved in traffic collisions occurring on county and local roadways. The dataset reports details of all traffic collisions occurring on county and local roadways within Montgomery County, as collected via the Automated Crash Reporting System (ACRS) of the Maryland State Police, and reported by the Montgomery County Police, Gaithersburg Police, Rockville Police, or the Maryland-National Capital Park Police. This dataset shows each collision data recorded and the drivers involved (data.gov)
+
+### Variables:
+
+There are 172105 observations and 12 variables in the dataset.
+
+-   **Vehicle Make:** This refers to the manufacturer or brand of the vehicle, such as Toyota, Ford, Honda, etc.
+
+-   **Vehicle Model:** This is the specific model name or number of the vehicle, such as Corolla, Civic, F-150, etc.
+
+-   **Vehicle Year:** This represents the year the vehicle was manufactured or produced.
+
+-   **Vehicle Damage Extent:** This variable describes the extent or severity of damage sustained by the vehicle in the crash.
+
+-   **Vehicle Body Type:** This indicates the body style or type of the vehicle, such as sedan, SUV, truck, coupe, etc.
+
+-   **Vehicle Movement:** This variable describes the movement or motion of the vehicle at the time of the crash.
+
+-   **Vehicle Continuing Dir:** This refers to the direction in which the vehicle continued to move after the crash.
+
+-   **Vehicle Going Dir:** This represents the direction in which the vehicle was traveling prior to the crash.
+
+-   **Speed Limit:** This indicates the legal speed limit of the road where the crash occurred.
+
+-   **Parked Vehicle:** This variable indicates whether the vehicle was parked at the time of the crash.
+
+-   **Equipment Problems:** This variable indicates whether there were any equipment problems or malfunctions with the vehicle at the time of the crash.
+
+-   **Vehicle ID:** This is a unique identifier assigned to each vehicle involved in the crash.
+
+### Research Questions:
+
+Our research is aiming to find any significant associations between vehicle-related factors, such as vehicle make, model, year, and the extent of damage, with the severity of accidents?
+
+### Source:
+
+https://catalog.data.gov/dataset/crash-reporting-drivers-data

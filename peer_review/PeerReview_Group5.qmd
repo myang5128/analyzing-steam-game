@@ -1,0 +1,188 @@
+---
+title: "Peer Review For Group 5"
+author: "Edward, Sanjae, and Michael"
+date: "4/18/2024"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+\# ENTER COMMENTS FOR GROUP 5 PRELIM ANALYSIS
+
+## INTRODUCTION AND DATA
+
+#### Is the research question and goal of the report clearly stated?
+
+```         
+Yes, we were able to identify what the project/report plans on doing, and the goal of the report is to analyze the relationship between the sentiment expressed in FOMC speeches and stock market movements (understanding how market participants react to central bank communication.)
+```
+
+#### Does the introduction provide appropriate background context and motivation for a general reader?
+
+```         
+Yes, it gave a short gist of the Federal Reserve. However, one potential critique would be that the introduction could provide a bit more context on the specific methods Federal Reserve does and its impact on financial markets. For general reader, it is better to explain it a little bit further. 
+```
+
+#### Is the source of the data stated with an appropriate citation?
+
+```         
+Yes, each source has an appropriate link to where the data can be found and provides a summary of what the data contains (links to data from Yahoo Finance, Federal Reserve Economic Data (FRED), and the Federal Reserve website are provided)
+```
+
+#### Is it clear when and how the data was collected?
+
+```         
+From what we've seen so far, most of the data are public information and acquirable through downloading the data set. The only data that was collected in a different medium were the Federal Reserve speeches which were scraped. It isn't clear when the data was collected or, rather when the public data sets were updated.
+```
+
+#### Is data manipulation described clearly (missing data, creation of new variables, etc)?
+
+```         
+They removed all un-named columns from web scraping, ensured that all dates were in a standard format. Also, they merged different datasets to create a central dataframe.
+```
+
+#### Are the cases and relevant variables described?
+
+```         
+Yes, there is a codebook that lists all the variables used in the analysis along with their descriptions. Additionally, the report discusses the significance of key variables such as stock market indices (e.g., S&P 500, Nasdaq), economic indicators (e.g., unemployment rate, consumer price index), and sentiment analysis from FOMC speeches.
+```
+
+## METHODOLOGY
+
+
+#### Do the visualizations correspond to the stated research question?
+
+```         
+We were unable to see two of the graphs (plot-treasury-close-snp-close-plots, plot-finbert-sentiment-snp-high-plot) as there were issues. The other graphs do seem to correspond with their research question. However, through their descriptions of the plots, while the line plots demonstrate correlations between economic indicators and stock market performance, they may lack specificity in addressing the role of FOMC speeches. It would be helpful to incorporate visualizations specifically focused on the time periods surrounding FOMC meetings or speeches to isolate their impact on market movements more directly.
+```
+
+#### Are visualizations effective and do they follow clear visualization principles (including elements like titles, labels, appropriate for the type of data, etc)?
+
+```         
+They were properly labeled and had alt texts.
+```
+
+#### Is the choice of method/approach justified?
+
+```         
+The code mentions the use of machine learning models for sentiment analysis, but it's unclear whether these models have been validated or calibrated on a separate dataset, i.e. test on some training data and test data split from their central dataframe. Also, it seems to me that they've hold several assumptions and simplifications, such as treating all FOMC speeches as equally impactful and assuming linear relationships between variables, which may oversimplify the problem. They might need discuss it.
+```
+
+## RESULTS
+
+#### Are the chosen techniques for answering the research question appropriate for the research context and type of data?
+
+```         
+Given the unclear results, there might be better methods for answering the research question.
+```
+
+#### Is the research question answered effectively?
+
+```         
+No. While the results were inconclusive, it wasn't explained why they were inconclusive.
+```
+
+DISCUSSION
+
+#### Is the answer to the research question summarized and supported by evidence?
+
+```         
+No. Even though the answer was inconclusive, they didn't use data to back up why it was inconclusive. 
+```
+
+#### Are the limitations of the analysis clearly outlined?
+
+```         
+Yes, it talks about the limitations of the FINBERT model in determining tone and about the limitations of looking at stock prices.
+```
+
+#### Do the authors reflect on any implications the nature of the training data has for the generalizability of the findings?
+
+```         
+No
+```
+
+#### Do the authors reflect on the ethicality of their work?
+
+```         
+No
+```
+
+## FORMATTING
+
+#### Is their code commented on?
+
+```         
+No.
+```
+
+#### Are their code chunks labeled?
+
+```         
+Yes.
+```
+
+#### Are their code and output accessible?
+
+```         
+Yes.
+```
+
+## GENERAL
+
+#### Is the writing clear (including elements like spelling, grammar, etc)? Are you able to follow what is being done?
+
+```         
+There were some grammatical and spelling errors.
+```
+
+#### Is the coding clear? Are you able to follow precisely what is being done?
+
+```         
+There were no comments other than code chunk names, so it was a bit hard to follow step-by-step.
+```
+
+#### Are you able to reproduce all aspects of the report, including output, visualizations, etc?
+
+```         
+No, there were some issues with two of the graphs.
+```
+
+#### Is the report well-formatted and readable (including layout but also only reporting relevant output, with no extraneous code, visuals, etc)?
+
+```         
+Yes, they only included important information.
+```
+
+#### Have they appropriately outlined the next steps with gaps clearly defined?
+
+```         
+No.
+```
+
+#### Is their repository well-organized or has it been difficult to find certain files?
+
+```         
+It's well organized.
+```
+
+#### Any suggestions for them moving forward?
+
+```         
+For each speech, why not consider the data from the day before, the current day, and the next day to acknowledge the possibility of investors considering not to trade on the day of the speech due to them thinking it may cause random fluctuations in the market.               
+```
+
+## FINAL CONSIDERATIONS
+
+#### What is one question you have for the group after reading their analysis?
+
+```         
+What were the ones you were looking at?
+```
+
+## What is one thing the group has done especially well?
+
+```         
+I think this group did well with using models that weren't talked about in class, like the finBert model.
+```

@@ -1,0 +1,113 @@
+---
+title: "Classifying Steam's Successful Games"
+author: "Michael Yang, Edward Yang, Sanjae Chin"
+format: 
+  revealjs:
+    embed-resources: true
+    theme: "moon" 
+---
+
+## Topic and Motivation (What Is Steam?)
+::::{.columns}
+
+:::{.column width=70%}
+- Largest digital distribution platform and storefront
+- Thousands of games are listed on Steam but only a fraction are successful
+- Key player in the video game industry
+- Our Research Topic:
+  - Aim to find important features that classify success
+:::
+
+:::{.column width=30%}
+<img src="../figures/steamIcon.png" alt="Steam Icon" width="100%" height="100%" style="float: center;">
+:::
+
+::::
+
+## Our Data
+::::{.columns}
+
+:::{.column width=50%}
+<h2 style='font-size: 1.7rem;'> Where we got our data from: </h2>
+<p1 style='font-size: 1.7rem;'> SteamDB </p1></br>
+<p1 style='font-size: 1.7rem;'> Official Steam Site </p1></br>
+<p1 style='font-size: 1.7rem;'> SteamCharts </p1></br>
+<p1 style='font-size: 1.7rem;'> Scraped on February 28, 2024 </p1>
+:::
+
+:::{.column width=50%}
+<h2 style='font-size: 1.7rem;'> Our key variables: </h2>
+<p1 style='font-size: 1.7rem;'> Genres </p1></br>
+<p1 style='font-size: 1.7rem;'> Publisher/Developer </p1></br>
+<p1 style='font-size: 1.7rem;'> Base Price </p1></br>
+<p1 style='font-size: 1.7rem;'> Success </p1></br>
+<p1 style='font-size: 1.7rem;'> Number of Positive Reviews </p1></br>
+<p1 style='font-size: 1.7rem;'> Number of Negative Reviews </p1></br>
+<p1 style='font-size: 1.7rem;'> Total Number of Reviews </p1></br>
+<p1 style='font-size: 1.7rem;'> Peak Player Count </p1></br>
+<p1 style='font-size: 1.7rem;'> Peak Daily Player Count </p1>
+:::
+::::
+
+
+
+## EDA Visualizations
+::::{.columns}
+:::{.column width=50%}
+<li style='font-size: 1.7rem;'> About 18% (598) of games in our cleaned dataset are considered successful </li>
+<li style='font-size: 1.7rem;'> About 70% (421) of successful games cost less than $20 </li>
+<ul>
+<li style='font-size: 1.7rem;'> About 21% (128) were free </li>
+</ul>
+<li style='font-size: 1.7rem;'> The average positive/negative review ratio is around 95% </li>
+<img src="../figures/count.jpg" alt="Number of successful and non-successful games" width="90%" height="90%" style="float: center;">
+:::
+
+:::{.column width=50%}
+<img src="../figures/price.jpg" alt="Price distribution for successful/non-successful games" width="85%" height="85%" style="float: center;">
+<img src="../figures/review.jpg" alt="Positive/Negative (log) review ratio distribution for successful/non-successful games" width="85%" height="85%" style="float: center;">
+:::
+::::
+
+## EDA Genres
+<li style='font-size: 2rem;'> Most successful games are Indie (64%) </li>
+<li style='font-size: 2rem;'> A decent number of games have Action-Adventure aspects (41%) </li>
+<li style='font-size: 2rem;'> Indie Action-Adventure games are more likely to be successful compared to other genres </li>
+<img src="../figures/succ_genres.jpg" alt="Genre distribution" width="70%" height="70%" style="float: center;">
+
+## Methodology
+
+- Logistic Regression
+  - simplicity, interpretability, linearity
+- Support Vector Machine (SVM)
+  - effectiveness in handling high-dimensional data and complex decision boundaries
+- Random Forest
+  - Ability to handle non-linear relationships
+- Gradient Boosting Machine (GBM)
+  - Iterative improvement of model performance
+
+## Results
+
+We then use ROC_AUC score to compare model performance of each model on the test dataset, which provides insights into the performance of each model in classifying success
+
+- ROC_AUC for SVM is 0.88
+- ROC_AUC for LR is 0.92
+- ROC_AUC for RF is 1.0
+- ROC_AUC for GBM is 0.5 
+
+
+## Conclusions and Discussion 
+
+<p1 style='font-size: 1.7rem;'> Currently our model is generally doing "well" to classify success based on our numerical columns("BASE PRICE", "ALL TIME PEAK", "TOTAL REVIEWS","NEGATIVE REVIEWS"). However once we added genre columns to our model auc scores were always 1.0 </p1>
+
+<p1 style='font-size: 1.7rem;'> We think this possibly due to two reasons: </p1>
+
+<li style='font-size: 1.7rem;'> Our change in what is success is now too simply </li>
+<li style='font-size: 1.7rem;'> There is some 1-1 mapping of our genre columns to outcome (success) </li>
+
+<p1 style='font-size: 1.7rem;'> Going forward we want to find where this could be originating from. </p1>
+
+<p1 style='font-size: 1.7rem;'> Depending on what we uncover </p1>
+<li style='font-size: 1.7rem;'> We may try to change our definition of success </li>
+<li style='font-size: 1.7rem;'> if the origin seems interesting we may analyze it further </li>
+

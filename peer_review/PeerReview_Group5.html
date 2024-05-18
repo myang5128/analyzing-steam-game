@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Edward, Sanjae, and Michael">
+<meta name="dcterms.date" content="2024-04-18">
+
+<title>Peer Review For Group 5</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="PeerReview_Group5_files/libs/clipboard/clipboard.min.js"></script>
+<script src="PeerReview_Group5_files/libs/quarto-html/quarto.js"></script>
+<script src="PeerReview_Group5_files/libs/quarto-html/popper.min.js"></script>
+<script src="PeerReview_Group5_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="PeerReview_Group5_files/libs/quarto-html/anchor.min.js"></script>
+<link href="PeerReview_Group5_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="PeerReview_Group5_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="PeerReview_Group5_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="PeerReview_Group5_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="PeerReview_Group5_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Peer Review For Group 5</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Edward, Sanjae, and Michael </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 18, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<p># ENTER COMMENTS FOR GROUP 5 PRELIM ANALYSIS</p>
+<section id="introduction-and-data" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-and-data">INTRODUCTION AND DATA</h2>
+<section id="is-the-research-question-and-goal-of-the-report-clearly-stated" class="level4">
+<h4 class="anchored" data-anchor-id="is-the-research-question-and-goal-of-the-report-clearly-stated">Is the research question and goal of the report clearly stated?</h4>
+<pre><code>Yes, we were able to identify what the project/report plans on doing, and the goal of the report is to analyze the relationship between the sentiment expressed in FOMC speeches and stock market movements (understanding how market participants react to central bank communication.)</code></pre>
+</section>
+<section id="does-the-introduction-provide-appropriate-background-context-and-motivation-for-a-general-reader" class="level4">
+<h4 class="anchored" data-anchor-id="does-the-introduction-provide-appropriate-background-context-and-motivation-for-a-general-reader">Does the introduction provide appropriate background context and motivation for a general reader?</h4>
+<pre><code>Yes, it gave a short gist of the Federal Reserve. However, one potential critique would be that the introduction could provide a bit more context on the specific methods Federal Reserve does and its impact on financial markets. For general reader, it is better to explain it a little bit further. </code></pre>
+</section>
+<section id="is-the-source-of-the-data-stated-with-an-appropriate-citation" class="level4">
+<h4 class="anchored" data-anchor-id="is-the-source-of-the-data-stated-with-an-appropriate-citation">Is the source of the data stated with an appropriate citation?</h4>
+<pre><code>Yes, each source has an appropriate link to where the data can be found and provides a summary of what the data contains (links to data from Yahoo Finance, Federal Reserve Economic Data (FRED), and the Federal Reserve website are provided)</code></pre>
+</section>
+<section id="is-it-clear-when-and-how-the-data-was-collected" class="level4">
+<h4 class="anchored" data-anchor-id="is-it-clear-when-and-how-the-data-was-collected">Is it clear when and how the data was collected?</h4>
+<pre><code>From what we've seen so far, most of the data are public information and acquirable through downloading the data set. The only data that was collected in a different medium were the Federal Reserve speeches which were scraped. It isn't clear when the data was collected or, rather when the public data sets were updated.</code></pre>
+</section>
+<section id="is-data-manipulation-described-clearly-missing-data-creation-of-new-variables-etc" class="level4">
+<h4 class="anchored" data-anchor-id="is-data-manipulation-described-clearly-missing-data-creation-of-new-variables-etc">Is data manipulation described clearly (missing data, creation of new variables, etc)?</h4>
+<pre><code>They removed all un-named columns from web scraping, ensured that all dates were in a standard format. Also, they merged different datasets to create a central dataframe.</code></pre>
+</section>
+<section id="are-the-cases-and-relevant-variables-described" class="level4">
+<h4 class="anchored" data-anchor-id="are-the-cases-and-relevant-variables-described">Are the cases and relevant variables described?</h4>
+<pre><code>Yes, there is a codebook that lists all the variables used in the analysis along with their descriptions. Additionally, the report discusses the significance of key variables such as stock market indices (e.g., S&amp;P 500, Nasdaq), economic indicators (e.g., unemployment rate, consumer price index), and sentiment analysis from FOMC speeches.</code></pre>
+</section>
+</section>
+<section id="methodology" class="level2">
+<h2 class="anchored" data-anchor-id="methodology">METHODOLOGY</h2>
+<section id="do-the-visualizations-correspond-to-the-stated-research-question" class="level4">
+<h4 class="anchored" data-anchor-id="do-the-visualizations-correspond-to-the-stated-research-question">Do the visualizations correspond to the stated research question?</h4>
+<pre><code>We were unable to see two of the graphs (plot-treasury-close-snp-close-plots, plot-finbert-sentiment-snp-high-plot) as there were issues. The other graphs do seem to correspond with their research question. However, through their descriptions of the plots, while the line plots demonstrate correlations between economic indicators and stock market performance, they may lack specificity in addressing the role of FOMC speeches. It would be helpful to incorporate visualizations specifically focused on the time periods surrounding FOMC meetings or speeches to isolate their impact on market movements more directly.</code></pre>
+</section>
+<section id="are-visualizations-effective-and-do-they-follow-clear-visualization-principles-including-elements-like-titles-labels-appropriate-for-the-type-of-data-etc" class="level4">
+<h4 class="anchored" data-anchor-id="are-visualizations-effective-and-do-they-follow-clear-visualization-principles-including-elements-like-titles-labels-appropriate-for-the-type-of-data-etc">Are visualizations effective and do they follow clear visualization principles (including elements like titles, labels, appropriate for the type of data, etc)?</h4>
+<pre><code>They were properly labeled and had alt texts.</code></pre>
+</section>
+<section id="is-the-choice-of-methodapproach-justified" class="level4">
+<h4 class="anchored" data-anchor-id="is-the-choice-of-methodapproach-justified">Is the choice of method/approach justified?</h4>
+<pre><code>The code mentions the use of machine learning models for sentiment analysis, but it's unclear whether these models have been validated or calibrated on a separate dataset, i.e. test on some training data and test data split from their central dataframe. Also, it seems to me that they've hold several assumptions and simplifications, such as treating all FOMC speeches as equally impactful and assuming linear relationships between variables, which may oversimplify the problem. They might need discuss it.</code></pre>
+</section>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">RESULTS</h2>
+<section id="are-the-chosen-techniques-for-answering-the-research-question-appropriate-for-the-research-context-and-type-of-data" class="level4">
+<h4 class="anchored" data-anchor-id="are-the-chosen-techniques-for-answering-the-research-question-appropriate-for-the-research-context-and-type-of-data">Are the chosen techniques for answering the research question appropriate for the research context and type of data?</h4>
+<pre><code>Given the unclear results, there might be better methods for answering the research question.</code></pre>
+</section>
+<section id="is-the-research-question-answered-effectively" class="level4">
+<h4 class="anchored" data-anchor-id="is-the-research-question-answered-effectively">Is the research question answered effectively?</h4>
+<pre><code>No. While the results were inconclusive, it wasn't explained why they were inconclusive.</code></pre>
+<p>DISCUSSION</p>
+</section>
+<section id="is-the-answer-to-the-research-question-summarized-and-supported-by-evidence" class="level4">
+<h4 class="anchored" data-anchor-id="is-the-answer-to-the-research-question-summarized-and-supported-by-evidence">Is the answer to the research question summarized and supported by evidence?</h4>
+<pre><code>No. Even though the answer was inconclusive, they didn't use data to back up why it was inconclusive. </code></pre>
+</section>
+<section id="are-the-limitations-of-the-analysis-clearly-outlined" class="level4">
+<h4 class="anchored" data-anchor-id="are-the-limitations-of-the-analysis-clearly-outlined">Are the limitations of the analysis clearly outlined?</h4>
+<pre><code>Yes, it talks about the limitations of the FINBERT model in determining tone and about the limitations of looking at stock prices.</code></pre>
+</section>
+<section id="do-the-authors-reflect-on-any-implications-the-nature-of-the-training-data-has-for-the-generalizability-of-the-findings" class="level4">
+<h4 class="anchored" data-anchor-id="do-the-authors-reflect-on-any-implications-the-nature-of-the-training-data-has-for-the-generalizability-of-the-findings">Do the authors reflect on any implications the nature of the training data has for the generalizability of the findings?</h4>
+<pre><code>No</code></pre>
+</section>
+<section id="do-the-authors-reflect-on-the-ethicality-of-their-work" class="level4">
+<h4 class="anchored" data-anchor-id="do-the-authors-reflect-on-the-ethicality-of-their-work">Do the authors reflect on the ethicality of their work?</h4>
+<pre><code>No</code></pre>
+</section>
+</section>
+<section id="formatting" class="level2">
+<h2 class="anchored" data-anchor-id="formatting">FORMATTING</h2>
+<section id="is-their-code-commented-on" class="level4">
+<h4 class="anchored" data-anchor-id="is-their-code-commented-on">Is their code commented on?</h4>
+<pre><code>No.</code></pre>
+</section>
+<section id="are-their-code-chunks-labeled" class="level4">
+<h4 class="anchored" data-anchor-id="are-their-code-chunks-labeled">Are their code chunks labeled?</h4>
+<pre><code>Yes.</code></pre>
+</section>
+<section id="are-their-code-and-output-accessible" class="level4">
+<h4 class="anchored" data-anchor-id="are-their-code-and-output-accessible">Are their code and output accessible?</h4>
+<pre><code>Yes.</code></pre>
+</section>
+</section>
+<section id="general" class="level2">
+<h2 class="anchored" data-anchor-id="general">GENERAL</h2>
+<section id="is-the-writing-clear-including-elements-like-spelling-grammar-etc-are-you-able-to-follow-what-is-being-done" class="level4">
+<h4 class="anchored" data-anchor-id="is-the-writing-clear-including-elements-like-spelling-grammar-etc-are-you-able-to-follow-what-is-being-done">Is the writing clear (including elements like spelling, grammar, etc)? Are you able to follow what is being done?</h4>
+<pre><code>There were some grammatical and spelling errors.</code></pre>
+</section>
+<section id="is-the-coding-clear-are-you-able-to-follow-precisely-what-is-being-done" class="level4">
+<h4 class="anchored" data-anchor-id="is-the-coding-clear-are-you-able-to-follow-precisely-what-is-being-done">Is the coding clear? Are you able to follow precisely what is being done?</h4>
+<pre><code>There were no comments other than code chunk names, so it was a bit hard to follow step-by-step.</code></pre>
+</section>
+<section id="are-you-able-to-reproduce-all-aspects-of-the-report-including-output-visualizations-etc" class="level4">
+<h4 class="anchored" data-anchor-id="are-you-able-to-reproduce-all-aspects-of-the-report-including-output-visualizations-etc">Are you able to reproduce all aspects of the report, including output, visualizations, etc?</h4>
+<pre><code>No, there were some issues with two of the graphs.</code></pre>
+</section>
+<section id="is-the-report-well-formatted-and-readable-including-layout-but-also-only-reporting-relevant-output-with-no-extraneous-code-visuals-etc" class="level4">
+<h4 class="anchored" data-anchor-id="is-the-report-well-formatted-and-readable-including-layout-but-also-only-reporting-relevant-output-with-no-extraneous-code-visuals-etc">Is the report well-formatted and readable (including layout but also only reporting relevant output, with no extraneous code, visuals, etc)?</h4>
+<pre><code>Yes, they only included important information.</code></pre>
+</section>
+<section id="have-they-appropriately-outlined-the-next-steps-with-gaps-clearly-defined" class="level4">
+<h4 class="anchored" data-anchor-id="have-they-appropriately-outlined-the-next-steps-with-gaps-clearly-defined">Have they appropriately outlined the next steps with gaps clearly defined?</h4>
+<pre><code>No.</code></pre>
+</section>
+<section id="is-their-repository-well-organized-or-has-it-been-difficult-to-find-certain-files" class="level4">
+<h4 class="anchored" data-anchor-id="is-their-repository-well-organized-or-has-it-been-difficult-to-find-certain-files">Is their repository well-organized or has it been difficult to find certain files?</h4>
+<pre><code>It's well organized.</code></pre>
+</section>
+<section id="any-suggestions-for-them-moving-forward" class="level4">
+<h4 class="anchored" data-anchor-id="any-suggestions-for-them-moving-forward">Any suggestions for them moving forward?</h4>
+<pre><code>For each speech, why not consider the data from the day before, the current day, and the next day to acknowledge the possibility of investors considering not to trade on the day of the speech due to them thinking it may cause random fluctuations in the market.               </code></pre>
+</section>
+</section>
+<section id="final-considerations" class="level2">
+<h2 class="anchored" data-anchor-id="final-considerations">FINAL CONSIDERATIONS</h2>
+<section id="what-is-one-question-you-have-for-the-group-after-reading-their-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="what-is-one-question-you-have-for-the-group-after-reading-their-analysis">What is one question you have for the group after reading their analysis?</h4>
+<pre><code>What were the ones you were looking at?</code></pre>
+</section>
+</section>
+<section id="what-is-one-thing-the-group-has-done-especially-well" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-one-thing-the-group-has-done-especially-well">What is one thing the group has done especially well?</h2>
+<pre><code>I think this group did well with using models that weren't talked about in class, like the finBert model.</code></pre>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

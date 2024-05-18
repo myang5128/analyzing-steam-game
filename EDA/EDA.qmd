@@ -1,0 +1,231 @@
+---
+title: "EDA"
+author: "Edward, Sanjae and Michael"
+date: "3/27/2024"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r loadpackage}
+#| warning: false
+#| message: false
+library(ggplot2)
+library(tidyverse)
+library(readxl)
+library(readr)
+```
+
+```{r readdata}
+#| warning: false
+#| message: false
+games <- read_csv("../data/Uncleaned Data/games_cleaned_copy.csv")
+```
+
+### Exploring the Data
+
+Outcome Variable:
+
+**success:** For the games we consider to be successful our criteria classifies it as successful. It is designed to capture the level of achievement a game attains based on predefined criteria. We have to look at some other games at a later point to consider games we aren't personally familiar with. Our expectation is that the player base determines whether a game is successful. So using information such as the peak ratio and number of positive reviews ratio would help to determine if a game is successful.
+
+Key Explanatory Variables:
+
+\-**all time peak:**
+
+\-**peak ratio**
+
+\-**positive review ratio**
+
+\-**positive review ratio**
+
+\-**base price**
+
+\-**genres**(optional)
+
+
+```{python summary statistics}
+import pandas as pd
+summary_stats = r.games[9:].describe().transpose()
+summary_stats = summary_stats.drop(columns = ['count'])
+summary_table = summary_stats.to_markdown()
+
+print(summary_table)
+```
+
+### Data Wrangling and Transformation
+
+Cleaning:
+
+-   **developer:** Drop any games with "0" as a developer.
+
+-   **publisher:** Drop any games with "0" as a publisher.
+
+-   **base price:** Removed any games with Demo as a price.
+
+Wrangling:
+
+-   **genre & tags:** Made a set of all the genres and tags and turn them into categorical.
+
+-   **release date:** Converted to have format mm-dd-yyyy.
+
+-   **platforms:** Turned the list of supported platforms into categorical.
+
+-   **sp/coop/mp:** Turned the list of SP/Coop/Mp into categorical.
+
+Excluding:
+
+We decided to remove the "games" that are more utility such as animation software. We also decided to remove any games with a release date earlier than august 2012. Since the data on daily peak and all time peak is accurate for the past 12 years.
+
+Variable Creation:
+
+-   **peak ratio:** We took a ratio of daily peak and all time peak. So that smaller games with lower player all time player peaks to still be classifiable as successful.
+
+-   **positive review ratio:** We took a ratio of positive review to total reviews. So that smaller games with lower player all time player peaks to still be classifiable as successful.
+
+-   **success:** Using thresholds for all time peak, peak ratio, positive review ratio in combination we determine a game to either be high success or low success.
+
+```{r datawrangling}
+#| warning: false
+#| message: false
+games$positive_review_rate <- games$'POSITIVE REVIEWS' / games$'TOTAL REVIEWS'
+games$peak_ratio <- games$"24-HR PEAK (2/28)"/ games$"ALL TIME PEAK"
+
+
+# Define criteria
+success_criteria <- function(positive_review_rate, all_time_peak,peak_ratio) {
+  
+  # all time peak && peak ratio -> High Success
+  # all time peak && positive_review rate -> High Success
+  # positive_review rate  && peak ratio -> High Success 
+  if (positive_review_rate > 0.95) {
+    return("High Success")
+  } else if (positive_review_rate > 0.9 && all_time_peak > 8000) {
+    return("High Success")
+  } else if (positive_review_rate > 0.9 && peak_ratio > 0.2 && all_time_peak > 0) {
+    return("High Success")
+  } else {
+    return("Low Success")
+  }
+}
+
+# create success column
+games$success <- mapply(success_criteria, games$positive_review_rate, games$'ALL TIME PEAK', games$peak_ratio)
+games$success <- ifelse(grepl("High Success", games$success), 1, 0)
+num_high_success <- sum(games$success == 1)
+
+# log transform important numerical variables we have 
+games$log_negative_reviews <- log(games$'NEGATIVE REVIEWS' + 1)  # Adding 1 to avoid log(0)
+games$log_positive_reviews <- log(games$'POSITIVE REVIEWS'  + 1)
+games$log_total_reviews <- log(games$'TOTAL REVIEWS' + 1)
+games$log_peak <- log(games$'24-HR PEAK (2/28)' + 1)
+games$log_all_time_peak <- log(games$'ALL TIME PEAK' + 1)
+
+# save data to csv file
+write.csv(games, file = "../data/games.csv", row.names = FALSE)
+```
+
+#### Plot 1:  
+
+The next few graphs all make sense just like what we did to define success.
+
+```{r plot1}
+#| warning: false
+#| message: false
+#| fig-alt: A bar plot showing the number of successful and non-successful games
+#| fig-cap: Bar plot showing the distribution of game success.
+#| fig-cap-location: top
+# Bar plot of success variable
+count_plot <- ggplot(games, aes(x = factor(success))) +
+  geom_bar() +
+  labs(x = "Success", y = "Count") +
+  scale_color_viridis_d() +
+  scale_x_discrete(labels = c("0" = "Non Success", "1" = "Success")) + 
+  ggtitle("Distribution of Game Success")
+
+ggsave("../figures/count.png", plot = count_plot, width = 6, height = 4, units = "in", dpi = 300)
+```
+
+Here, we have about 10% of total games considered to be successful given our criteria.
+
+#### Plot 2:  
+
+```{r plot2}
+#| warning: false
+#| message: false
+#| fig-alt: A histogram showing the distribution of Peak Ratio by Game Success
+#| fig-cap: Histogram showing the distribution of peak ratio by game success.
+#| fig-cap-location: top
+
+# Histogram of peak ratio by success
+ggplot(games, aes(x = positive_review_rate, fill = factor(success))) +
+  geom_histogram(binwidth = 0.1, alpha = 0.7, position = "identity") +
+  labs(x = "Positive Review Ratio", y = "Frequency", color = "success") +
+  ggtitle("Distribution of Peak Ratio by Game Success") +
+  scale_color_viridis_d() +
+  theme_minimal()
+
+```
+We can see that games with a positive review ratio higher than 0.8 are more likely to succeed.
+
+#### Plot 3:  
+
+```{r plot3}
+#| warning: false
+#| message: false
+#| fig-alt: A histogram showing the distribution of Peak Ratio by Game Success
+#| fig-cap: Histogram showing the distribution of peak ratio by game success.
+#| fig-cap-location: top
+# Histogram of peak ratio by success
+ggplot(games, aes(x = peak_ratio, fill = factor(success))) +
+  geom_histogram(binwidth = 0.1, alpha = 0.7, position = "identity") +
+  labs(x = "Peak Ratio", y = "Frequency",, color = "success") +
+  ggtitle("Distribution of Peak Ratio by Game Success") +
+  scale_color_viridis_d() +
+  theme_minimal()
+
+```
+We can see in this plot that games with higher Peak ratios are more likely to be considered as successful.
+
+
+#### Plot 4:  
+
+```{r plot4}
+#| warning: false
+#| message: false
+#| fig-alt: A scatter plot showing the relationship between Positive Reviews vs. Total Reviews for Game Success
+#| fig-cap: Scatter plot showing the relationship between positive reviews and negative reviews by game success.
+#| fig-cap-location: top
+
+# Scatter plot of positive reviews vs. total reviews by success
+ggplot(games, aes(x = log_positive_reviews, y = log_negative_reviews, color = factor(success))) +
+  geom_point() +
+  labs(x = "Positive Reviews", y = "Negative Reviews" , color = "success") +
+  ggtitle("Positive Reviews vs. Total Reviews by Game Success") +
+  scale_color_viridis_d() +
+  theme_minimal()
+
+
+```
+For the plot above, we can find two clusters(purple vs. yellow), which suggests that successful games have more positive reviews than negative reviews in general.
+
+#### Plot 5:  
+
+```{r plot5}
+#| fig-alt: Histogram of basic price showing the distribution of base price 
+#| fig-cap: Histogram of base price by game successs
+#| fig-cap-location: top
+
+
+# Histogram of base price
+price_plot <- ggplot(games, aes(x = `BASE PRICE`, fill = factor(success))) +
+  geom_histogram(binwidth = 5, alpha = 0.7, position = "identity") +
+  labs(x = "Base Price", y = "Frequency") +
+  ggtitle("Distribution of Base Price by Game Success") +
+  scale_color_viridis_d() +
+  theme_minimal()
+
+ggsave("../figures/price.png", plot = price_plot, width = 6, height = 4, units = "in", dpi = 300)
+```
+
+We found that there were very few games over $100, and then most games were concentrated under 50, and then we found that it seems that the success portion of games was the largest at around 25 compared to other prices.

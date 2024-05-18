@@ -1,0 +1,44 @@
+---
+title: "prelim_data_cleaning"
+format: html
+editor: visual
+---
+
+```{python import-libraries}
+import pandas as pd
+```
+
+```{python import-data}
+games_raw = pd.read_csv('../data/games_success.csv')
+```
+
+
+```{python data-clean}
+# make genres and playability categorical
+games_raw.GENRES = pd.Categorical(games_raw.GENRES)
+games_raw['SP/COOP/MP'] = pd.Categorical(games_raw['SP/COOP/MP'])
+
+# drop columns not needed for analysis
+drop_cols = ['NAME', 'GENRES', 'DEVELOPER', 'PUBLISHER', 'SP/COOP/MP', 'BASE PRICE', 'SUCCESS']
+games_raw = games_raw.loc[:, drop_cols]
+```
+
+```{python split-genres}
+# split genres into new rows
+genres_df = games_raw['GENRES'].str.get_dummies(',')
+new_df = pd.concat([games_raw, genres_df], axis=1)
+```
+
+```{python split-playability}
+# split playability into new rows
+sp_df = games_raw['SP/COOP/MP'].str.get_dummies(',')
+new_df = pd.concat([new_df, sp_df], axis=1)
+```
+
+```{python drop-used-columns}
+# drop unnecessary columns
+new_df = new_df.drop(columns = ['GENRES', 'SP/COOP/MP'])
+
+# save as csv file
+new_df.to_csv('../data/games_prelim.csv', index=False)
+```
